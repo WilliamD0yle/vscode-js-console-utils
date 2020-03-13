@@ -46,6 +46,18 @@ function deleteFoundLogStatements(workspaceEdit, docUri, logs) {
     });
 }
 
+function printLine(text) {
+    const filePath = vscode.window.activeTextEditor.document.uri.fsPath;
+    const fileExtensionIndex = filePath.lastIndexOf('.');
+    const fileExtension = filePath.substring(fileExtensionIndex);
+
+    if (fileExtension === '.jsx' || fileExtension === '.js') {
+        return `console.log('${text}: ', ${text});`
+    } else if (fileExtension === '.go') {
+        return `spew.Dump("${text}: ", ${text});`
+    }
+}
+
 function activate(context) {
     console.log('console-log-utils is now active');
 
@@ -58,10 +70,7 @@ function activate(context) {
 
         text
             ? vscode.commands.executeCommand('editor.action.insertLineAfter')
-                .then(() => {
-                    const logToInsert = `console.log('${text}: ', ${text});`;
-                    insertText(logToInsert);
-                })
+                .then(() => insertText(printLine(text)))
             : insertText('console.log();');
 
     });
